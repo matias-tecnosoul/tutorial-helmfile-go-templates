@@ -60,7 +60,7 @@ helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
 
 ### Paso 1: Estructura básica
 ```bash
-cd ~/tutorial-helmfile-gotemplates-argo
+cd ~/tutorial-helmfile-go-templates
 
 # Crear estructura inicial
 mkdir -p helmfile.d/{values,environments}

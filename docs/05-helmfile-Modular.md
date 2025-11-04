@@ -38,7 +38,7 @@ helmfile.d/
 
 ## 🏗️ Estructura Modular Completa
 ```bash
-tutorial-helmfile-gotemplates-argo/
+tutorial-helmfile-go-templates/
 ├── helmfile.d/
 │   ├── 01-infrastructure.yaml       # Bases de datos
 │   ├── 02-services.yaml             # Aplicaciones

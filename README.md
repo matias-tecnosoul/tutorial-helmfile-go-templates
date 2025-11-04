@@ -40,8 +40,8 @@ Al completar este tutorial, aprenderás a:
 ### Deploy local en 10 minutos
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/matias-tecnosoul/tutorial-helmfile-gotemplates-argo.git
-cd tutorial-helmfile-gotemplates-argo
+git clone https://github.com/matias-tecnosoul/tutorial-helmfile-go-templates.git
+cd tutorial-helmfile-go-templates
 
 # 2. Configurar direnv (opcional)
 cp .envrc-sample .envrc
@@ -91,7 +91,7 @@ curl http://localhost:3000/api/tasks
 
 ## 🗂️ Estructura del Proyecto
 ```
-tutorial-helmfile-gotemplates-argo/
+tutorial-helmfile-go-templates/
 ├── README.md
 ├── helmfile.d/                      # Helmfiles modulares (patrón Mikroways)
 │   ├── 01-infrastructure.yaml       # PostgreSQL
@@ -429,10 +429,9 @@ Este proyecto está bajo la Licencia MIT - ver [LICENSE](LICENSE) para detalles.
 ## 🆘 Ayuda y Soporte
 
 - 📖 [Documentación completa](docs/)
-- 🐛 [Reportar issues](https://github.com/matias-tecnosoul/tutorial-helmfile-gotemplates-argo/issues)
-- 💬 [Discusiones](https://github.com/matias-tecnosoul/tutorial-helmfile-gotemplates-argo/discussions)
+- 🐛 [Reportar issues](https://github.com/matias-tecnosoul/tutorial-helmfile-go-templates/issues)
 
-## 🌟 Por qué este tutorial es diferente
+## 🌟 Sobre este tutorial
 
 ### Simplificado para aprender
 
