@@ -375,7 +375,6 @@ Ver [troubleshooting completo](docs/01-setup.md#troubleshooting) en cada capítu
 ### Mikroways
 
 * [Mikroways](https://mikroways.net/)
-* [Repo k8s-base-services](https://gitlab.com/mikroways/k8s/k8s-base-services) (referencia)
 
 ## 🚀 Próximos Tutoriales
 
