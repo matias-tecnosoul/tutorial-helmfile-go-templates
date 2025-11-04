@@ -1,0 +1,42 @@
+---
+{{ $env := .Environment.Name }}
+{{ $isProd := eq $env "production" }}
+
+image:
+  repository: {{ .Values.postgres.image.repository }}
+  tag: {{ .Values.postgres.image.tag | quote }}
+
+{{ if $isProd }}
+replicaCount: 3
+{{ else }}
+replicaCount: 1
+{{ end }}
+
+env:
+  - name: POSTGRES_DB
+    value: "appdb"
+  
+  - name: POSTGRES_USER
+    value: "appuser"
+  
+  - name: POSTGRES_PASSWORD
+    value: {{ .Values.postgres.password | quote }}
+
+resources:
+  {{ .Values.postgres.resources | toYaml | nindent 2 }}
+
+{{ with .Values.postgres.persistence }}
+{{ if .enabled }}
+storage:
+  className: {{ .className }}
+  requestedSize: {{ .size }}
+{{ end }}
+{{ end }}
+
+labels:
+  app: postgres
+  environment: {{ $env }}
+  tier: infrastructure
+  {{ if $isProd }}
+  critical: "true"
+  {{ end }}

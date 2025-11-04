@@ -1,0 +1,17 @@
+---
+# Overrides para desarrollo
+
+baseDomain: dev.example.local
+
+# Recursos mínimos para dev
+postgres:
+  persistence:
+    enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+appService:
+  ingress:
+    enabled: false  # Port-forward recomendado en dev

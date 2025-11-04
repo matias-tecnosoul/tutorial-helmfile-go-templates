@@ -1,0 +1,33 @@
+---
+environments:
+  dev:
+    values:
+      - values/common.yaml
+      - environments/dev/values.yaml
+      - environments/dev/secrets.yaml
+  staging:
+    values:
+      - values/common.yaml
+      - environments/staging/values.yaml
+      - environments/staging/secrets.yaml
+  production:
+    values:
+      - values/common.yaml
+      - environments/production/values.yaml
+      - environments/production/secrets.yaml
+
+---
+releases:
+  - name: app-service
+    namespace: dev
+    chart: ../charts/app-service
+    values:
+      - values/app-service/values.yaml.gotmpl
+    wait: true
+    timeout: 300
+    needs:
+      - dev/postgres
+    labels:
+      tier: services
+      component: app
+    condition: appService.enabled
