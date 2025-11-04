@@ -1,3 +1,4 @@
+# helmfile.d/values/postgres/values.yaml.gotmpl
 ---
 {{ $env := .Environment.Name }}
 {{ $isProd := eq $env "production" }}
@@ -32,6 +33,53 @@ storage:
   requestedSize: {{ .size }}
 {{ end }}
 {{ end }}
+
+# HEALTH CHECKS - Chart uses custom probe structure
+# Note: groundhog2k/postgres uses customXxxProbe (not standard xxxProbe)
+# This overrides the default probes that fail with "localhost:5432 - no attempt"
+customStartupProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 30
+  successThreshold: 1
+
+customLivenessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+  successThreshold: 1
+
+customReadinessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+# Disable default probes since we're using custom ones
+startupProbe:
+  enabled: false
+livenessProbe:
+  enabled: false  
+readinessProbe:
+  enabled: false
 
 labels:
   app: postgres

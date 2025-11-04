@@ -483,6 +483,73 @@ Antes de continuar:
 - [ ] Te conectaste a PostgreSQL para verificar que funciona
 - [ ] Entiendes el flujo de carga de valores (common → env → secrets)
 
+## 🐛 Troubleshooting: Health Check Timeouts
+
+### Problem
+Helmfile gets stuck with "context deadline exceeded" even when PostgreSQL is working:
+```bash
+Warning  Unhealthy  4s (x5 over 44s)  kubelet  Startup probe failed: localhost:5432 - no attempt
+```
+Root Cause
+The groundhog2k/postgres chart uses custom probe configuration that differs from standard Kubernetes:
+
+Standard: livenessProbe:, readinessProbe:, startupProbe:
+
+This chart: customLivenessProbe:, customReadinessProbe:, customStartupProbe:
+
+Solution
+Use the chart's custom probe structure in your values:
+```
+# helmfile.d/values/postgres/values.yaml.gotmpl
+customStartupProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 30
+
+customLivenessProbe:
+  exec:
+    command:
+      - sh
+      - -c  
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+customReadinessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - PGPASSWORD={{ .Values.postgres.password }} pg_isready -U appuser -d appdb -h 127.0.0.1
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+```
+### Aprendizaje Clave
+Siempre verifica los patrones específicos del chart: `helm show values chart/nombre`
+
+Usa `127.0.0.1` en lugar de `localhost` para mayor confiabilidad
+
+Incluye la contraseña mediante la variable de entorno `PGPASSWORD`
+
+### 🔑 Puntos Clave del Capítulo 2
+
+1. **Helmfile resuelve la gestión multi-release** - Un comando para todas las aplicaciones
+2. **Enfoque modular** - Cada componente en archivos separados bajo `helmfile.d/`
+3. **Los patrones específicos del chart importan** - Siempre verifica `helm show values` para configuraciones personalizadas
+4. **Los health checks son cruciales** - Los probes adecuados aseguran despliegues confiables
+5. **Habilidades de debugging** - Usa `kubectl describe`, `helm show values` y pruebas manuales
+
 ## ➡️ Siguiente Paso
 
 👉 **[03 - Go Templates](03-go-templates.md)**

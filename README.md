@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Tutorial completo y práctico para gestionar aplicaciones en Kubernetes usando Helmfile y Go Templates, siguiendo el patrón modular de Mikroways.
+Tutorial completo y práctico para gestionar aplicaciones en Kubernetes usando Helmfile y Go Templates, siguiendo un patrón modular dentro de un entorno multiambiente.
 
 ## 🎯 Objetivos de Aprendizaje
 
