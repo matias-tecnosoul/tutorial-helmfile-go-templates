@@ -55,10 +55,10 @@ cp helmfile.d/environments/dev/secrets.yaml.example \
    helmfile.d/environments/dev/secrets.yaml
 
 # 5. Desplegar infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # 6. Desplegar aplicación
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # 7. Probar la aplicación
 kubectl port-forward -n dev svc/app-service 3000:80
@@ -94,9 +94,9 @@ curl http://localhost:3000/api/tasks
 tutorial-helmfile-go-templates/
 ├── README.md
 ├── helmfile.d/                      # Helmfiles modulares (patrón Mikroways)
-│   ├── 01-infrastructure.yaml       # PostgreSQL
-│   ├── 02-services.yaml             # app-service
-│   ├── 03-ingress.yaml              # [OPCIONAL] Nginx Ingress
+│   ├── 01-infrastructure.yaml.gotmpl # PostgreSQL
+│   ├── 02-services.yaml.gotmpl      # app-service
+│   ├── 03-ingress.yaml.gotmpl       # [OPCIONAL] Nginx Ingress
 │   ├── environments/                # Configuración por ambiente
 │   │   ├── dev/
 │   │   │   ├── values.yaml
@@ -180,8 +180,8 @@ tutorial-helmfile-go-templates/
 ## 🎮 Comandos Útiles
 ```bash
 # Alias útil (opcional)
-alias hf-infra='helmfile -f helmfile.d/01-infrastructure.yaml'
-alias hf-services='helmfile -f helmfile.d/02-services.yaml'
+alias hf-infra='helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl'
+alias hf-services='helmfile -f helmfile.d/02-services.yaml.gotmpl'
 
 # Helmfile - Infraestructura
 hf-infra -e dev list              # Listar releases
@@ -269,8 +269,8 @@ kubectl describe pod -n dev <pod-name>
 nano helmfile.d/values/common.yaml
 
 # Probar localmente
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 ```
 
 ### 2. Verificar cambios
@@ -326,7 +326,7 @@ which helmfile
 kubectl logs -n dev <pod-name>
 
 # Verificar dependencias
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev list
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev list
 
 # Ver eventos
 kubectl get events -n dev --sort-by='.lastTimestamp'
@@ -353,7 +353,7 @@ kubectl run -it --rm debug --image=busybox --restart=Never -- \
 # Ver versiones disponibles
 helm search repo groundhog2k/postgres --versions
 
-# Actualizar version en helmfile.d/01-infrastructure.yaml
+# Actualizar version en helmfile.d/01-infrastructure.yaml.gotmpl
 version: ~1.5.0  # O la versión disponible
 ```
 

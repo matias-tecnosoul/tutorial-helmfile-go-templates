@@ -358,8 +358,8 @@ kube-node-lease   Active   2m
 
 ```bash
 # Clonar el repositorio del tutorial
-git clone https://gitlab.com/matias-tecnosoul/helmfile-microservices.git
-cd helmfile-microservices
+git clone https://github.com/matias-tecnosoul/tutorial-helmfile-go-templates.git
+cd tutorial-helmfile-go-templates
 
 # Ver estructura
 tree -L 2 -I 'node_modules'
@@ -367,23 +367,21 @@ tree -L 2 -I 'node_modules'
 
 **Estructura esperada:**
 ```
-helmfile-microservices/
-├── helmfile.yaml
+tutorial-helmfile-go-templates/
 ├── helmfile.d/
-│   ├── 01-infrastructure.yaml
-│   ├── 02-services.yaml
-│   ├── 03-ingress.yaml
+│   ├── 01-infrastructure.yaml.gotmpl
+│   ├── 02-services.yaml.gotmpl
+│   ├── 03-ingress.yaml.gotmpl
 │   ├── environments/
 │   └── values/
 ├── charts/
-│   ├── api-gateway/
-│   ├── auth-service/
-│   └── user-service/
-├── scripts/
-│   ├── setup-cluster.sh
-│   ├── verify.sh
-│   └── cleanup.sh
+│   └── app-service/
+├── app-service-src/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── app.js
 ├── .envrc-sample
+├── kind-config.yaml
 ├── README.md
 └── docs/
 ```
@@ -425,7 +423,7 @@ export HELM_DATA_HOME=$PWD/.helm/data
 direnv allow
 
 # Deberías ver un mensaje como:
-# direnv: loading ~/helmfile-microservices/.envrc
+# direnv: loading ~/tutorial-helmfile-go-templates/.envrc
 # direnv: export +HELM_CACHE_HOME +HELM_CONFIG_HOME +HELM_DATA_HOME +HELMFILE_ENVIRONMENT +KUBE_CONTEXT +KUBECONFIG
 ```
 
@@ -434,7 +432,7 @@ direnv allow
 ```bash
 # Salir y entrar al directorio
 cd ..
-cd helmfile-microservices
+cd tutorial-helmfile-go-templates
 
 # Verificar variables
 echo $KUBECONFIG
@@ -444,7 +442,7 @@ echo $HELMFILE_ENVIRONMENT
 
 **Salida esperada:**
 ```
-/home/tu-usuario/helmfile-microservices/.kube/config
+/home/tu-usuario/tutorial-helmfile-go-templates/.kube/config
 kind-helmfile-tutorial
 dev
 ```
@@ -581,7 +579,7 @@ helmfile-tutorial-control-plane   Ready    control-plane   5m    v1.27.3
 
 === Verificando Direnv ===
 ✅ Direnv cargó variables de entorno
-   KUBECONFIG: /home/usuario/helmfile-microservices/.kube/config
+   KUBECONFIG: /home/usuario/tutorial-helmfile-go-templates/.kube/config
    KUBE_CONTEXT: kind-helmfile-tutorial
    HELMFILE_ENVIRONMENT: dev
 
@@ -783,12 +781,12 @@ echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 source ~/.bashrc
 
 # 3. Permitir direnv en el directorio
-cd ~/helmfile-microservices
+cd ~/tutorial-helmfile-go-templates
 direnv allow
 
 # 4. Salir y entrar al directorio para forzar recarga
 cd ..
-cd helmfile-microservices
+cd tutorial-helmfile-go-templates
 ```
 
 ### Helmfile: command not found

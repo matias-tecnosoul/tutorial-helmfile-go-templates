@@ -32,7 +32,7 @@ helm install app-service ./charts/app -n dev -f values-dev.yaml
 
 Un archivo declarativo que define TODOS tus releases:
 ```yaml
-# helmfile.d/01-infrastructure.yaml
+# helmfile.d/01-infrastructure.yaml.gotmpl
 releases:
   - name: postgres
     chart: groundhog2k/postgres
@@ -43,7 +43,7 @@ releases:
 
 Un comando para gobernarlos a todos:
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 ```
 
 > 💡 **Patrón de este tutorial**:
@@ -106,7 +106,7 @@ postgres:
 
 ### Paso 4: Helmfile de infraestructura
 ```yaml
-# helmfile.d/01-infrastructure.yaml
+# helmfile.d/01-infrastructure.yaml.gotmpl
 ---
 # Configuración de ambientes
 environments:
@@ -230,7 +230,7 @@ postgres:
 
 ### Listar releases (sin instalar)
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev list
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev list
 ```
 
 **Salida:**
@@ -241,14 +241,14 @@ postgres dev        true     component:database,tier:infrastructure  groundhog2k
 
 ### Ver qué se instalará (dry-run)
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
 ```
 
 **Primera vez:** Mostrará que todo es nuevo (muchas líneas de `+`).
 
 ### Instalar
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 ```
 
 **Salida:**
@@ -325,7 +325,7 @@ postgres:
 
 ### Ver diferencias
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
 ```
 
 **Salida:**
@@ -343,7 +343,7 @@ postgres, StatefulSet (apps) has changed:
 
 ### Aplicar cambios
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 ```
 
 Helmfile detecta el cambio y hace upgrade automáticamente.
@@ -351,7 +351,7 @@ Helmfile detecta el cambio y hace upgrade automáticamente.
 ## 🗑️ Eliminar un Release
 ```bash
 # Eliminar todo
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev destroy
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev destroy
 
 # Confirmar
 kubectl get all -n dev  # No debería haber nada (o solo el namespace)
@@ -361,9 +361,9 @@ kubectl get all -n dev  # No debería haber nada (o solo el namespace)
 
 | Aspecto | Helm Manual | Helmfile |
 |---------|-------------|----------|
-| **Instalar** | `helm install postgres groundhog2k/postgres -n dev -f values.yaml` | `helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply` |
-| **Actualizar** | `helm upgrade postgres groundhog2k/postgres -n dev -f values.yaml` | `helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply` |
-| **Ver cambios** | `helm diff upgrade postgres ...` (requiere plugin) | `helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff` |
+| **Instalar** | `helm install postgres groundhog2k/postgres -n dev -f values.yaml` | `helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply` |
+| **Actualizar** | `helm upgrade postgres groundhog2k/postgres -n dev -f values.yaml` | `helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply` |
+| **Ver cambios** | `helm diff upgrade postgres ...` (requiere plugin) | `helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff` |
 | **Múltiples apps** | Script bash con loops | Declarativo en YAML |
 | **Ambientes** | Archivos values separados + scripts | Cambiar `-e dev` por `-e prod` |
 | **Dependencias** | Manual o Helm hooks | `needs:` built-in |
@@ -372,7 +372,7 @@ kubectl get all -n dev  # No debería haber nada (o solo el namespace)
 ## 🎯 Comandos Clave de Helmfile
 ```bash
 # Alias útil (opcional)
-alias hf-infra='helmfile -f helmfile.d/01-infrastructure.yaml'
+alias hf-infra='helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl'
 
 # Listar releases
 hf-infra -e dev list
@@ -404,7 +404,7 @@ hf-infra -e dev -l tier=infrastructure apply
 
 ## 🔍 Estructura del helmfile modular
 ```yaml
-# helmfile.d/01-infrastructure.yaml
+# helmfile.d/01-infrastructure.yaml.gotmpl
 
 # 1. Ambientes
 environments:

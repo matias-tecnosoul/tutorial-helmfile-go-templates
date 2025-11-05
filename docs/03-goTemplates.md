@@ -521,32 +521,32 @@ ingress:
 ### Ver template renderizado
 ```bash
 # Ver PostgreSQL renderizado para dev
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev template
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev template
 
 # Ver PostgreSQL para production
-helmfile -f helmfile.d/01-infrastructure.yaml -e production template
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production template
 
 # Ver app-service renderizado (cuando lo despleguemos)
-helmfile -f helmfile.d/02-services.yaml -e dev template
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev template
 ```
 
 ### Ver valores mergeados
 ```bash
 # Ver cómo Helmfile mergea los valores
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values
 
 # Salvar a archivo para inspección
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values > /tmp/values-dev.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values > /tmp/values-dev.yaml
 cat /tmp/values-dev.yaml
 ```
 
 ### Comparar entre ambientes
 ```bash
 # Dev
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev template > /tmp/postgres-dev.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev template > /tmp/postgres-dev.yaml
 
 # Production
-helmfile -f helmfile.d/01-infrastructure.yaml -e production template > /tmp/postgres-prod.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production template > /tmp/postgres-prod.yaml
 
 # Comparar
 diff /tmp/postgres-dev.yaml /tmp/postgres-prod.yaml
@@ -572,7 +572,7 @@ diff /tmp/postgres-dev.yaml /tmp/postgres-prod.yaml
 
 ### Debug con --debug
 ```bash
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev --debug template
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev --debug template
 ```
 
 Muestra paso a paso la evaluación de templates.

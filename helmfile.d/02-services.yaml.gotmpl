@@ -19,14 +19,14 @@ environments:
 ---
 releases:
   - name: app-service
-    namespace: dev
+    namespace: {{ .Environment.Name }}
     chart: ../charts/app-service
     values:
       - values/app-service/values.yaml.gotmpl
     wait: true
     timeout: 300
     needs:
-      - dev/postgres
+      - {{ .Environment.Name }}/postgres
     labels:
       tier: services
       component: app

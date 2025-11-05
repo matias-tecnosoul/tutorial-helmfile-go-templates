@@ -42,7 +42,7 @@ app.example.com     → app-service:80
 
 ## 🏗️ Nginx Ingress Controller
 
-### helmfile.d/03-ingress.yaml
+### helmfile.d/03-ingress.yaml.gotmpl
 ```yaml
 # ⚠️ OPCIONAL: Este módulo es opcional. Ver docs/07-ingress.md
 # Para testing rápido, usa: kubectl port-forward -n dev svc/app-service 3000:80
@@ -269,7 +269,7 @@ appService:
 ### 2. Deploy Ingress Controller
 ```bash
 # Deploy ingress controller
-helmfile -f helmfile.d/03-ingress.yaml -e dev apply
+helmfile -f helmfile.d/03-ingress.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get pods -n ingress-nginx
@@ -285,7 +285,7 @@ ingress-nginx-defaultbackend-xxxxx-xxxxx    1/1     Running   0          1m
 ### 3. Re-deploy app-service con Ingress habilitado
 ```bash
 # Re-deploy app-service
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Verificar ingress resource
 kubectl get ingress -n dev

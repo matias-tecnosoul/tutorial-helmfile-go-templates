@@ -25,14 +25,14 @@ releases:
 ### Solución: helmfile.d/
 ```
 helmfile.d/
-├── 01-infrastructure.yaml  # PostgreSQL
-├── 02-services.yaml        # app-service
-└── 03-ingress.yaml         # Networking (OPCIONAL)
+├── 01-infrastructure.yaml.gotmpl  # PostgreSQL
+├── 02-services.yaml.gotmpl        # app-service
+└── 03-ingress.yaml.gotmpl         # Networking (OPCIONAL)
 ```
 
 **Ventajas:**
 - Separación de responsabilidades
-- Deploy selectivo: `helmfile -f helmfile.d/01-infrastructure.yaml apply`
+- Deploy selectivo: `helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl apply`
 - Menos conflictos en Git
 - Fácil onboarding
 
@@ -40,9 +40,9 @@ helmfile.d/
 ```bash
 tutorial-helmfile-go-templates/
 ├── helmfile.d/
-│   ├── 01-infrastructure.yaml       # Bases de datos
-│   ├── 02-services.yaml             # Aplicaciones
-│   ├── 03-ingress.yaml              # Networking (OPCIONAL)
+│   ├── 01-infrastructure.yaml.gotmpl       # Bases de datos
+│   ├── 02-services.yaml.gotmpl             # Aplicaciones
+│   ├── 03-ingress.yaml.gotmpl              # Networking (OPCIONAL)
 │   ├── environments/                # Por ambiente
 │   │   ├── dev/
 │   │   │   ├── values.yaml
@@ -71,7 +71,7 @@ tutorial-helmfile-go-templates/
 
 ## 🗄️ Módulo 1: Infraestructura
 
-### helmfile.d/01-infrastructure.yaml
+### helmfile.d/01-infrastructure.yaml.gotmpl
 ```yaml
 ---
 # Heredar configuración de ambientes
@@ -121,7 +121,7 @@ releases:
 
 ## 🎯 Módulo 2: Services
 
-### helmfile.d/02-services.yaml
+### helmfile.d/02-services.yaml.gotmpl
 ```yaml
 ---
 environments:
@@ -164,7 +164,7 @@ releases:
 
 ## 🌐 Módulo 3: Ingress (OPCIONAL)
 
-### helmfile.d/03-ingress.yaml
+### helmfile.d/03-ingress.yaml.gotmpl
 ```yaml
 # ⚠️ OPCIONAL: Este módulo es opcional. Ver docs/07-ingress.md
 # Para testing rápido, usa: kubectl port-forward -n dev svc/app-service 3000:80
@@ -214,22 +214,22 @@ releases:
 ### Listar por módulo
 ```bash
 # Toda la infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev list
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev list
 
 # Todos los servicios
-helmfile -f helmfile.d/02-services.yaml -e dev list
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev list
 
 # Solo ingress (opcional)
-helmfile -f helmfile.d/03-ingress.yaml -e dev list
+helmfile -f helmfile.d/03-ingress.yaml.gotmpl -e dev list
 ```
 
 **Salida esperada:**
 ```
-# 01-infrastructure.yaml
+# 01-infrastructure.yaml.gotmpl
 NAME     NAMESPACE  ENABLED  LABELS                                  CHART
 postgres dev        true     component:database,tier:infrastructure  groundhog2k/postgres
 
-# 02-services.yaml
+# 02-services.yaml.gotmpl
 NAME         NAMESPACE  ENABLED  LABELS                      CHART
 app-service  dev        true     component:app,tier:services ../charts/app-service
 ```
@@ -237,43 +237,43 @@ app-service  dev        true     component:app,tier:services ../charts/app-servi
 ### Deploy selectivo
 ```bash
 # Solo infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # Solo servicios (requiere infraestructura ya desplegada)
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Solo ingress (opcional)
-helmfile -f helmfile.d/03-ingress.yaml -e dev apply
+helmfile -f helmfile.d/03-ingress.yaml.gotmpl -e dev apply
 ```
 
 ### Deploy por labels
 ```bash
 # Solo databases
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev -l component=database apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev -l component=database apply
 
 # Toda la infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev -l tier=infrastructure apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev -l tier=infrastructure apply
 
 # Todos los servicios
-helmfile -f helmfile.d/02-services.yaml -e dev -l tier=services apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev -l tier=services apply
 
 # Solo app
-helmfile -f helmfile.d/02-services.yaml -e dev -l component=app apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev -l component=app apply
 ```
 
 ## 📊 Flujo de Deploy
 ```
 Opción 1: Deploy módulo por módulo
     ↓
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
     ↓
   postgres (deployed)
     ↓
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
     ↓
   app-service (deployed, needs: postgres)
     ↓
-helmfile -f helmfile.d/03-ingress.yaml -e dev apply (OPCIONAL)
+helmfile -f helmfile.d/03-ingress.yaml.gotmpl -e dev apply (OPCIONAL)
     ↓
   ingress-nginx (deployed, needs: app-service)
 ```
@@ -283,7 +283,7 @@ helmfile -f helmfile.d/03-ingress.yaml -e dev apply (OPCIONAL)
 ### 1. Infraestructura
 ```bash
 # Deploy
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get all -n dev
@@ -304,7 +304,7 @@ statefulset.apps/postgres   1/1     1m
 ### 2. Services
 ```bash
 # Deploy
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get all -n dev
@@ -364,9 +364,9 @@ curl http://localhost:3000/api/tasks
 ### Por tipo de recurso (Mikroways) ✅ USAMOS ESTE
 ```
 helmfile.d/
-├── 01-infrastructure.yaml    # DB, cache
-├── 02-services.yaml          # Apps
-├── 03-ingress.yaml           # Networking
+├── 01-infrastructure.yaml.gotmpl    # DB, cache
+├── 02-services.yaml.gotmpl          # Apps
+├── 03-ingress.yaml.gotmpl           # Networking
 ```
 
 **Ventajas:**
@@ -436,7 +436,7 @@ helmfile.d/
 
 ### Paths relativos incorrectos
 ```yaml
-# ❌ ERROR (desde helmfile.d/02-services.yaml)
+# ❌ ERROR (desde helmfile.d/02-services.yaml.gotmpl)
 chart: charts/app-service  # No encuentra el chart
 
 # ✅ CORRECTO
@@ -447,7 +447,7 @@ chart: ../charts/app-service  # Path relativo al helmfile
 
 Cada módulo debe declarar sus propios `environments:`:
 ```yaml
-# helmfile.d/02-services.yaml
+# helmfile.d/02-services.yaml.gotmpl
 environments:
   dev:
     values:
@@ -472,12 +472,12 @@ needs:
 ### Deploy en orden incorrecto
 ```bash
 # ❌ ERROR: Deploy services antes de infra
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 # Error: app-service needs postgres (no existe aún)
 
 # ✅ CORRECTO: Deploy en orden
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply  # Primero infra
-helmfile -f helmfile.d/02-services.yaml -e dev apply        # Luego services
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply  # Primero infra
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply        # Luego services
 ```
 
 ## 🎓 Ejercicio Práctico
@@ -489,13 +489,13 @@ nano helmfile.d/values/common.yaml
 # Aumentar memory: 1Gi
 
 # 2. Ver diferencias solo en infra
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
 
 # 3. Aplicar solo infra
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # 4. Verificar que services NO se tocó
-helmfile -f helmfile.d/02-services.yaml -e dev diff
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev diff
 # Output: No changes
 ```
 

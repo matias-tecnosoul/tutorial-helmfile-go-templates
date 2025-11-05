@@ -47,9 +47,9 @@ Configuración final
 ## 🏗️ Estructura de Ambientes
 ```bash
 helmfile.d/
-├── 01-infrastructure.yaml       # Módulo (namespace: dev)
-├── 02-services.yaml             # Módulo (namespace: dev)
-├── 03-ingress.yaml              # Módulo (OPCIONAL)
+├── 01-infrastructure.yaml.gotmpl       # Módulo (namespace: dev)
+├── 02-services.yaml.gotmpl             # Módulo (namespace: dev)
+├── 03-ingress.yaml.gotmpl              # Módulo (OPCIONAL)
 ├── environments/
 │   ├── dev/
 │   │   ├── values.yaml
@@ -73,7 +73,7 @@ helmfile.d/
 
 ## 📄 Configuración de Ambientes en Módulo
 
-### helmfile.d/01-infrastructure.yaml
+### helmfile.d/01-infrastructure.yaml.gotmpl
 ```yaml
 ---
 # Definir ambientes en el módulo
@@ -432,10 +432,10 @@ ingress:
 ### Desarrollo
 ```bash
 # Ver diferencias
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
 
 # Aplicar infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get all -n dev
@@ -456,7 +456,7 @@ statefulset.apps/postgres   1/1     1m
 ### Desplegar app-service en dev
 ```bash
 # Aplicar services
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get all -n dev
@@ -519,9 +519,9 @@ curl -X POST http://localhost:3000/api/tasks \
 ### Comparar configuraciones entre ambientes
 ```bash
 # Ver templates por ambiente
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev template > /tmp/dev.yaml
-helmfile -f helmfile.d/01-infrastructure.yaml -e staging template > /tmp/staging.yaml
-helmfile -f helmfile.d/01-infrastructure.yaml -e production template > /tmp/production.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev template > /tmp/dev.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e staging template > /tmp/staging.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production template > /tmp/production.yaml
 
 # Comparar dev vs staging
 diff /tmp/dev.yaml /tmp/staging.yaml
@@ -554,13 +554,13 @@ diff /tmp/staging.yaml /tmp/production.yaml
 ## 📊 Ver valores mergeados
 ```bash
 # Ver cómo Helmfile mergea los valores en dev
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values
 
 # Guardar para inspección
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values > /tmp/merged-dev.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values > /tmp/merged-dev.yaml
 
 # Ver producción
-helmfile -f helmfile.d/01-infrastructure.yaml -e production write-values > /tmp/merged-prod.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production write-values > /tmp/merged-prod.yaml
 
 # Comparar merge
 diff /tmp/merged-dev.yaml /tmp/merged-prod.yaml
@@ -574,8 +574,8 @@ diff /tmp/merged-dev.yaml /tmp/merged-prod.yaml
 nano helmfile.d/values/common.yaml
 
 # Probar localmente
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev diff
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # Verificar
 kubectl get all -n dev
@@ -586,26 +586,26 @@ curl http://localhost:3000/health
 ### 2. Promover a staging (simulado)
 ```bash
 # Ver qué cambiaría en staging
-helmfile -f helmfile.d/01-infrastructure.yaml -e staging diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e staging diff
 
 # Aplicar a staging (si tuvieras cluster staging)
-# helmfile -f helmfile.d/01-infrastructure.yaml -e staging apply
+# helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e staging apply
 
 # Verificar diferencias de configuración
-diff <(helmfile -f helmfile.d/01-infrastructure.yaml -e dev template) \
-     <(helmfile -f helmfile.d/01-infrastructure.yaml -e staging template)
+diff <(helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev template) \
+     <(helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e staging template)
 ```
 
 ### 3. Desplegar a production (simulado)
 ```bash
 # Review exhaustivo
-helmfile -f helmfile.d/01-infrastructure.yaml -e production diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production diff
 
 # Ver template completo antes de aplicar
-helmfile -f helmfile.d/01-infrastructure.yaml -e production template | less
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production template | less
 
 # Aplicar con cuidado (si tuvieras cluster production)
-# helmfile -f helmfile.d/01-infrastructure.yaml -e production apply
+# helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production apply
 ```
 
 ## 🎯 Feature Flags
@@ -638,7 +638,7 @@ appService:
   enabled: false
 
 # App-service no se desplegará
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 # Output: No releases to deploy (condition not met)
 ```
 
@@ -660,10 +660,10 @@ env:
 ### 2. Validar antes de aplicar
 ```bash
 # Siempre diff primero
-helmfile -f helmfile.d/01-infrastructure.yaml -e production diff
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production diff
 
 # Luego apply
-helmfile -f helmfile.d/01-infrastructure.yaml -e production apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production apply
 ```
 
 ### 3. Usar naming consistente
@@ -698,10 +698,10 @@ postgres:
 ls -la helmfile.d/environments/dev/secrets.yaml
 
 # Verificar que está en la lista de values
-grep -A5 "environment:" helmfile.d/01-infrastructure.yaml
+grep -A5 "environment:" helmfile.d/01-infrastructure.yaml.gotmpl
 
 # Ver valores cargados (⚠️ muestra secrets en consola)
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values | grep password
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values | grep password
 ```
 
 ### Valores no se sobreescriben
@@ -716,8 +716,8 @@ helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values | grep passwor
 ### Diferencias inesperadas entre ambientes
 ```bash
 # Ver qué valores tiene cada ambiente
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev write-values > /tmp/dev-values.yaml
-helmfile -f helmfile.d/01-infrastructure.yaml -e production write-values > /tmp/prod-values.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev write-values > /tmp/dev-values.yaml
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production write-values > /tmp/prod-values.yaml
 
 diff /tmp/dev-values.yaml /tmp/prod-values.yaml
 ```
@@ -763,4 +763,4 @@ Aprenderás a:
 
 ---
 
-**💡 Tip**: Usa `helmfile -f helmfile.d/01-infrastructure.yaml -e production diff` antes de cada deploy a producción. Revisa CADA cambio antes de aplicar.
+**💡 Tip**: Usa `helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e production diff` antes de cada deploy a producción. Revisa CADA cambio antes de aplicar.

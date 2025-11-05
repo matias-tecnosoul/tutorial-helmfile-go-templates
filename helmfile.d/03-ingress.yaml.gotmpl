@@ -36,4 +36,4 @@ releases:
       component: ingress
     condition: ingressNginx.enabled
     needs:
-      - dev/app-service
+      - {{ .Environment.Name }}/app-service

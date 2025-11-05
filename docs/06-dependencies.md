@@ -32,7 +32,7 @@ Helmfile esperará a que `postgres` esté desplegado antes de instalar `app-serv
 
 ## 🏗️ Dependencias Básicas
 
-### helmfile.d/01-infrastructure.yaml
+### helmfile.d/01-infrastructure.yaml.gotmpl
 ```yaml
 ---
 releases:
@@ -50,7 +50,7 @@ releases:
 
 **Sin dependencias** - PostgreSQL es la base, no depende de nada.
 
-### helmfile.d/02-services.yaml
+### helmfile.d/02-services.yaml.gotmpl
 ```yaml
 ---
 releases:
@@ -87,7 +87,7 @@ releases:
 
 ## 🔗 Dependencias Cross-Module
 
-### helmfile.d/03-ingress.yaml
+### helmfile.d/03-ingress.yaml.gotmpl
 ```yaml
 ---
 releases:
@@ -112,7 +112,7 @@ releases:
 ### Deploy y observar orden
 ```bash
 # Terminal 1: Deploy infraestructura
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # Terminal 2: Watch pods (ejecutar antes del apply)
 watch kubectl get pods -n dev
@@ -126,7 +126,7 @@ watch kubectl get pods -n dev
 ### Deploy services con dependencia
 ```bash
 # Terminal 1: Deploy services
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Terminal 2: Watch pods
 watch kubectl get pods -n dev
@@ -152,7 +152,7 @@ kubectl logs -n dev -l app=app-service -f
 
 ### Configuración de wait
 ```yaml
-# helmfile.d/01-infrastructure.yaml
+# helmfile.d/01-infrastructure.yaml.gotmpl
 releases:
   - name: postgres
     namespace: dev
@@ -193,15 +193,15 @@ Helmfile espera a que:
 ### Test 1: Deploy desde cero
 ```bash
 # Eliminar todo
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev destroy
-helmfile -f helmfile.d/02-services.yaml -e dev destroy
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev destroy
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev destroy
 
 # Verificar que no hay nada
 kubectl get all -n dev
 
 # Deploy en orden correcto
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Verificar orden en eventos
 kubectl get events -n dev --sort-by='.lastTimestamp' | grep Created
@@ -219,11 +219,11 @@ kubectl get events -n dev --sort-by='.lastTimestamp' | grep Created
 ### Test 2: Intentar deploy sin dependencias
 ```bash
 # Eliminar todo
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev destroy
-helmfile -f helmfile.d/02-services.yaml -e dev destroy
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev destroy
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev destroy
 
 # Intentar deploy de services sin infra
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Resultado:
 # Error: release "postgres" in namespace "dev" not found
@@ -233,8 +233,8 @@ helmfile -f helmfile.d/02-services.yaml -e dev apply
 ### Test 3: Conectividad de app-service
 ```bash
 # Deploy completo
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Port-forward
 kubectl port-forward -n dev svc/app-service 3000:80
@@ -415,7 +415,7 @@ timeout: 600  # 10 min (imágenes grandes, init containers, etc.)
 
 ### Sin needs
 ```yaml
-# helmfile.d/02-services.yaml
+# helmfile.d/02-services.yaml.gotmpl
 releases:
   - name: app-service
     namespace: dev
@@ -425,7 +425,7 @@ releases:
 
 **Resultado:**
 ```bash
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # app-service intenta arrancar inmediatamente
 # CrashLoopBackOff si postgres no está listo
@@ -434,7 +434,7 @@ helmfile -f helmfile.d/02-services.yaml -e dev apply
 
 ### Con needs
 ```yaml
-# helmfile.d/02-services.yaml
+# helmfile.d/02-services.yaml.gotmpl
 releases:
   - name: app-service
     namespace: dev
@@ -445,7 +445,7 @@ releases:
 
 **Resultado:**
 ```bash
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 
 # Helmfile verifica que postgres existe
 # Helmfile espera a que postgres esté ready
@@ -458,15 +458,15 @@ helmfile -f helmfile.d/02-services.yaml -e dev apply
 **Objetivo:** Ver qué pasa sin dependencias.
 ```bash
 # 1. Eliminar needs de app-service
-nano helmfile.d/02-services.yaml
+nano helmfile.d/02-services.yaml.gotmpl
 # Comentar línea: needs: - dev/postgres
 
 # 2. Eliminar todo
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev destroy
-helmfile -f helmfile.d/02-services.yaml -e dev destroy
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev destroy
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev destroy
 
 # 3. Deploy services ANTES de infra (orden incorrecto)
-helmfile -f helmfile.d/02-services.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml.gotmpl -e dev apply
 # Arranca sin esperar postgres
 
 # 4. Ver el error
@@ -474,14 +474,14 @@ kubectl logs -n dev -l app=app-service
 # Error: connect ECONNREFUSED
 
 # 5. Deploy infra (ahora sí)
-helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/01-infrastructure.yaml.gotmpl -e dev apply
 
 # 6. Esperar y verificar
 # app-service se auto-recupera cuando postgres esté listo
 # (Kubernetes reinicia el pod automáticamente)
 
 # 7. Restaurar needs
-nano helmfile.d/02-services.yaml
+nano helmfile.d/02-services.yaml.gotmpl
 # Descomentar: needs: - dev/postgres
 ```
 
