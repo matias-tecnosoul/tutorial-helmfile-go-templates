@@ -51,8 +51,15 @@ npm start
 
 ## Build Docker Image
 ```bash
-# Build
-docker build -t app-service:1.0.0 .
+# Build (sin cache para asegurar última versión)
+docker build --no-cache -t app-service:1.0.0 .
+
+# Verificar timestamp
+docker images app-service:1.0.0
+# Debe mostrar "About a minute ago"
+
+# Cargar en Kind
+kind load docker-image app-service:1.0.0 --name helmfile-tutorial
 
 # Run
 docker run -d \

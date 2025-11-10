@@ -412,7 +412,46 @@ labels:
   critical: "true"
   {{ end }}
 ```
+### ⚠️ IMPORTANTE: imagePullPolicy para Kind
 
+Cuando usas imágenes locales cargadas con `kind load`, SIEMPRE usa:
+```yaml
+image:
+  pullPolicy: Never
+```
+
+**¿Por qué?**
+
+| pullPolicy | Comportamiento | Uso |
+|------------|----------------|-----|
+| `Always` | Siempre pull de registry | ❌ Falla con imágenes locales |
+| `IfNotPresent` | Pull si no existe | ⚠️ Puede funcionar pero lento |
+| `Never` | Nunca pull | ✅ Perfecto para Kind |
+
+**Error común:**
+```
+Failed to pull image "app-service:1.0.0": failed to pull and unpack image
+```
+
+**Solución:**
+```bash
+# 1. Eliminar release fallido
+helm uninstall app-service -n dev
+
+# 2. Cambiar pullPolicy a Never en template
+
+# 3. Re-deploy
+helmfile -f helmfile.d/02-services.yaml -e dev apply
+```
+```
+
+---
+
+### 3️⃣ **Dependencias cross-module (needs:)**
+
+**Problema encontrado:**
+```
+release(s) "dev/app-service" depend(s) on an undefined release "dev/postgres"
 ## 🏗️ Ejemplo Completo: App Service
 
 Ahora veamos cómo usar templates para nuestra aplicación Node.js.

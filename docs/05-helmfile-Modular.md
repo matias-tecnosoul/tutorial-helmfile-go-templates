@@ -468,7 +468,67 @@ needs:
 needs:
   - dev/postgres
 ```
+## ⚠️ Limitación: needs cross-module
 
+En el patrón modular, `needs:` entre módulos no se puede validar en tiempo de template.
+
+**Ejemplo:**
+```yaml
+# 01-infrastructure.yaml
+releases:
+  - name: postgres
+    namespace: dev
+
+# 02-services.yaml
+releases:
+  - name: app-service
+    namespace: dev
+    needs:
+      - dev/postgres  # ← No se puede validar en template time
+```
+
+**Workarounds:**
+
+**Opción 1: Remover needs (RECOMENDADO para tutorial)**
+```yaml
+releases:
+  - name: app-service
+    namespace: dev
+    # needs: - dev/postgres  ← Comentar
+```
+
+Desplegar en orden manual:
+```bash
+helmfile -f helmfile.d/01-infrastructure.yaml -e dev apply
+helmfile -f helmfile.d/02-services.yaml -e dev apply
+```
+
+**Opción 2: Usar --skip-needs para template**
+```bash
+helmfile -f helmfile.d/02-services.yaml -e dev template --skip-needs
+```
+
+**Opción 3: Helmfile único (producción real)**
+```yaml
+# helmfile.yaml (raíz)
+releases:
+  - name: postgres
+  - name: app-service
+    needs:
+      - dev/postgres  # ← Funciona porque están en el mismo archivo
+```
+
+**Nota:** En producción real, muchos equipos prefieren un solo `helmfile.yaml` 
+con todos los releases para tener `needs:` funcionando correctamente.
+```
+
+---
+
+### 4️⃣ **Docker cache en rebuild**
+
+**Problema:**
+```
+Imagen mostraba "7 hours ago" después de rebuild 
 ### Deploy en orden incorrecto
 ```bash
 # ❌ ERROR: Deploy services antes de infra
