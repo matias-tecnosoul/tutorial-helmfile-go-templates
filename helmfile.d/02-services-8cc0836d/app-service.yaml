@@ -1,0 +1,29 @@
+env:
+  - name: NODE_ENV
+    value: dev
+  - name: PORT
+    value: "3000"
+  - name: DB_HOST
+    value: postgres.dev.svc.cluster.local
+  - name: DB_NAME
+    value: appdb
+  - name: DB_USER
+    value: appuser
+  - name: DB_PASSWORD
+    value: dev-postgres-secret-123
+image:
+  pullPolicy: Always
+  repository: app-service
+  tag: 1.0.0
+replicaCount: 1
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+service:
+  port: 80
+  targetPort: 3000
+  type: ClusterIP

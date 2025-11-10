@@ -1,18 +1,23 @@
 ---
+{{/* Variables locales */}}
 {{ $env := .Environment.Name }}
 
+{{/* Configuración de réplicas */}}
 replicaCount: {{ .Values.appService.replicaCount }}
 
+{{/* Imagen */}}
 image:
   repository: {{ .Values.appService.image.repository }}
   tag: {{ .Values.appService.image.tag }}
-  pullPolicy: {{ if eq $env "production" }}IfNotPresent{{ else }}Always{{ end }}
+  pullPolicy: Never  {{/* Nunca pull para imágenes locales */}}
 
+{{/* Service */}}
 service:
   type: ClusterIP
   port: 80
   targetPort: 3000
 
+{{/* Variables de entorno para la app */}}
 env:
   - name: NODE_ENV
     value: {{ $env }}
@@ -32,22 +37,6 @@ env:
   - name: DB_PASSWORD
     value: {{ .Values.postgres.password | quote }}
 
+{{/* Recursos */}}
 resources:
   {{ .Values.appService.resources | toYaml | nindent 2 }}
-
-{{ if .Values.appService.ingress.enabled }}
-ingress:
-  enabled: true
-  className: nginx
-  hosts:
-    - host: app.{{ .Values.baseDomain }}
-      paths:
-        - path: /
-          pathType: Prefix
-  {{ if eq $env "production" }}
-  tls:
-    - secretName: app-service-tls
-      hosts:
-        - app.{{ .Values.baseDomain }}
-  {{ end }}
-{{ end }}

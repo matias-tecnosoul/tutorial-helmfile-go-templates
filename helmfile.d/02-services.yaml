@@ -25,8 +25,8 @@ releases:
       - values/app-service/values.yaml.gotmpl
     wait: true
     timeout: 300
-    needs:
-      - dev/postgres
+    # needs:
+    #   - dev/postgres
     labels:
       tier: services
       component: app
