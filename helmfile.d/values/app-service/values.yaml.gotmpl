@@ -3,7 +3,16 @@
 {{ $env := .Environment.Name }}
 
 {{/* Configuración de réplicas */}}
-replicaCount: {{ .Values.appService.replicaCount }}
+{{/* Réplicas según ambiente */}}
+{{ $env := .Environment.Name }}
+{{ if eq $env "production" }}
+replicaCount: 3
+{{ else if eq $env "staging" }}
+replicaCount: 2
+{{ else }}
+replicaCount: 1
+{{ end }}
+
 
 {{/* Imagen */}}
 image:
@@ -37,6 +46,27 @@ env:
   - name: DB_PASSWORD
     value: {{ .Values.postgres.password | quote }}
 
-{{/* Recursos */}}
+{{/* Recursos según ambiente y criticidad */}}
+{{ $isProd := eq $env "production" }}
+{{ $isStaging := eq $env "staging" }}
+
 resources:
-  {{ .Values.appService.resources | toYaml | nindent 2 }}
+  requests:
+    {{ if or $isProd $isStaging }}
+    cpu: 200m
+    memory: 256Mi
+    {{ else }}
+    cpu: 100m
+    memory: 128Mi
+    {{ end }}
+  limits:
+    {{ if $isProd }}
+    cpu: 2000m
+    memory: 2Gi
+    {{ else if $isStaging }}
+    cpu: 1000m
+    memory: 1Gi
+    {{ else }}
+    cpu: 500m
+    memory: 512Mi
+    {{ end }}
